@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Mlc Adoption Dashboard W02 W19",
+  "schemaVersion": 1,
+  "description": "Dashboard interativo de diagnóstico da queda de Adoption 3P GM no Chile (MLC), W02–W19 2026. Inclui 7 gráficos: Adoption+Penetração FBM, VIPs por canal, Buffering FBM, CVR com gap table, Free Shipping com gap table, Avg Promise com gap table, e GMV absoluto por canal. Bandas de eventos sazonais (PPS, Black Week, Full Week, DDM) destacadas em todos os gráficos."
+}
+</script>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLC — Diagnóstico Adoption 3P GM · W02–W19 2026</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0efed;color:#1a1a18;font-size:13px}
+.page{padding:14px;display:flex;flex-direction:column;gap:10px}
+.header{background:#fff;border:1px solid #e0dedd;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.header-left h1{font-size:15px;font-weight:500;margin-bottom:2px}
+.header-left p{font-size:11px;color:#888}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:2px 9px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:#fff;border:1px solid #e0dedd;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column}
+.card.span3{grid-column:span 3}
+.card-title{font-size:12px;font-weight:500;margin-bottom:1px}
+.card-sub{font-size:10px;color:#999;margin-bottom:7px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;font-size:10px;color:#777;align-items:center}
+.ld{display:inline-block;width:12px;height:3px;border-radius:1px;margin-right:3px;vertical-align:middle}
+.lb{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}
+.chart-wrap{position:relative}
+.gap-tbl{width:100%;font-size:9.5px;border-collapse:collapse;margin-top:8px;flex-shrink:0}
+.gap-tbl th{color:#aaa;font-weight:500;padding:2px 4px;text-align:right;border-bottom:1px solid #f0efed}
+.gap-tbl th:first-child{text-align:left}
+.gap-tbl td{padding:2px 4px;text-align:right;color:#333;border-bottom:1px solid #f7f7f6}
+.gap-tbl td:first-child{text-align:left;color:#888}
+.gap-tbl tr:last-child td{background:#fafaf8;border-bottom:none}
+.bad{color:#c0392b;font-weight:600}
+.good{color:#27ae60;font-weight:600}
+footer{text-align:center;font-size:10px;color:#bbb;padding:6px 0}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>MLC — Diagnóstico Adoption 3P GM</h1>
+      <p>Semanas W02–W19 · 2026 · Shipping Chile · Passe o mouse para ver os valores</p>
+    </div>
+    <div class="chips">
+      <span class="chip" style="background:rgba(186,117,23,.15);color:#7a4c0d">PPS 2/2 (W03–W04)</span>
+      <span class="chip" style="background:rgba(186,117,23,.15);color:#7a4c0d">PPS 3/3 (W07–W09)</span>
+      <span class="chip" style="background:rgba(52,131,250,.15);color:#0c3d7a">Black Week (W12–W13)</span>
+      <span class="chip" style="background:rgba(83,74,183,.15);color:#3a3486">Full Week (W14)</span>
+      <span class="chip" style="background:rgba(212,83,126,.15);color:#8b2d4e">DDM (W18–W19)</span>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-title">Adoption 3P GM vs Penetração FBM</div>
+      <div class="card-sub">vendas FBM / total 3P GM · share SIs FBM</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>Adoption</span>
+        <span><span style="display:inline-block;width:12px;height:0;border-top:2px dashed #e08a2a;margin-right:3px;vertical-align:middle"></span>Penetração</span>
+      </div>
+      <div class="chart-wrap" style="height:155px"><canvas id="c1"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">VIPs por canal</div>
+      <div class="card-sub">% visitas de compradores VIP</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>FBM</span>
+        <span><span class="ld" style="background:#e08a2a"></span>Flex</span>
+        <span><span class="ld" style="background:#27ae60"></span>XD</span>
+      </div>
+      <div class="chart-wrap" style="height:155px"><canvas id="c7"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Buffering FBM Ops (%)</div>
+      <div class="card-sub">% inbound não processado por saturação de CD</div>
+      <div class="leg">
+        <span><span class="lb" style="background:#27ae60"></span>&lt;3% ok</span>
+        <span><span class="lb" style="background:#e08a2a"></span>3–10% alerta</span>
+        <span><span class="lb" style="background:#c0392b"></span>&gt;10% crítico</span>
+      </div>
+      <div class="chart-wrap" style="height:155px"><canvas id="c3"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">CVR por canal (%)</div>
+      <div class="card-sub">taxa de conversão FBM vs Flex</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>FBM</span>
+        <span><span class="ld" style="background:#e08a2a"></span>Flex</span>
+      </div>
+      <div class="chart-wrap" style="height:130px"><canvas id="c2"></canvas></div>
+      <table class="gap-tbl" id="g2"></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Free Shipping (%)</div>
+      <div class="card-sub">% pedidos com frete grátis FBM vs Flex</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>FBM</span>
+        <span><span class="ld" style="background:#e08a2a"></span>Flex</span>
+      </div>
+      <div class="chart-wrap" style="height:130px"><canvas id="c5"></canvas></div>
+      <table class="gap-tbl" id="g5"></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Avg Promise (dias)</div>
+      <div class="card-sub">prazo prometido ao comprador</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>FBM</span>
+        <span><span class="ld" style="background:#e08a2a"></span>Flex</span>
+      </div>
+      <div class="chart-wrap" style="height:130px"><canvas id="c4"></canvas></div>
+      <table class="gap-tbl" id="g4"></table>
+    </div>
+
+    <div class="card span3">
+      <div class="card-title">GMV absoluto por canal (MM CLP)</div>
+      <div class="card-sub">FBM · Flex · XD · DS</div>
+      <div class="leg">
+        <span><span class="ld" style="background:#3266ad"></span>FBM</span>
+        <span><span class="ld" style="background:#e08a2a"></span>Flex</span>
+        <span><span class="ld" style="background:#27ae60"></span>XD</span>
+        <span><span class="ld" style="background:#888"></span>DS</span>
+      </div>
+      <div class="chart-wrap" style="height:150px"><canvas id="c6"></canvas></div>
+    </div>
+
+  </div>
+
+  <footer>Mercado Livre · Shipping LATAM · Performance MLC · Maio 2026</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<script>
+const WKS=['W02','W03','W04','W05','W06','W07','W08','W09','W10','W11','W12','W13','W14','W15','W16','W17','W18','W19'];
+
+const adoption=[33.7,35.4,35.9,36.2,35.8,36.0,36.4,35.5,33.8,35.6,35.0,36.1,37.8,35.8,34.4,33.9,33.7,32.4];
+const penFBM  =[47.3,47.8,49.2,50.1,49.5,49.3,50.2,50.5,48.2,48.7,48.8,53.1,53.7,48.9,47.5,47.3,49.0,47.0];
+const cvrFBM  =[5.75,5.76,5.71,5.78,5.72,5.58,5.40,5.67,5.84,5.69,5.44,5.65,5.57,5.42,5.34,5.21,5.07,5.32];
+const cvrFlex =[5.60,5.33,5.73,5.73,5.81,5.60,5.33,5.73,6.25,5.94,5.65,5.55,5.68,5.60,5.48,5.47,5.48,5.85];
+const promFBM =[1.7,1.5,1.5,1.6,1.6,1.6,1.6,1.7,1.8,1.7,1.7,1.7,1.8,1.7,1.8,1.8,2.6,2.1];
+const promFlex=[0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.9,0.9,0.8,0.8,1.2,0.9,0.8,0.8,1.2,0.9];
+const fsFBM   =[82.3,82.4,82.9,84.0,84.7,84.2,85.6,85.4,85.5,85.2,85.2,84.7,85.8,84.4,83.3,82.7,82.2,82.8];
+const fsFlex  =[96.6,96.6,96.7,96.7,96.9,96.9,97.0,96.9,97.0,97.1,97.2,97.1,97.1,97.2,97.2,97.5,97.5,97.5];
+const buf     =[13.0,1.2,0.5,0.7,5.4,1.8,0.2,null,null,0.1,0.7,0.8,6.0,0.4,0.3,0.5,3.1,31.8];
+const gmvFBM  =[19.6,19.0,19.1,21.5,22.8,21.1,20.9,23.4,24.4,20.9,19.7,23.2,29.0,21.1,20.3,20.4,21.4,25.4];
+const gmvFlex =[9.5,8.9,8.8,9.4,10.0,9.1,8.4,9.9,11.2,9.2,9.0,9.2,10.0,9.4,9.7,9.8,10.0,11.9];
+const gmvXD   =[19.1,17.5,17.3,18.7,20.8,19.1,18.0,19.9,22.0,19.0,17.9,18.9,21.6,18.8,18.9,18.8,18.8,23.0];
+const gmvDS   =[2.3,2.0,2.0,2.0,2.1,1.9,1.9,2.2,2.4,2.0,1.8,1.8,2.2,2.0,2.0,2.0,2.1,2.3];
+const vipsFBM =[31.3,32.3,32.5,33.0,33.1,33.0,33.6,33.7,32.9,32.8,32.2,33.9,36.2,33.0,31.4,31.1,32.1,31.9];
+const vipsFlex=[19.6,19.1,19.5,20.3,19.9,19.6,19.1,19.5,20.0,19.1,19.6,19.3,18.0,19.6,20.3,20.8,20.2,20.5];
+const vipsXD  =[45.3,44.1,43.4,43.4,43.8,44.1,43.9,43.4,43.8,44.8,45.2,44.0,43.0,44.5,45.3,45.2,44.9,45.0];
+
+const BANDS=[
+  {from:1,to:2,color:'rgba(186,117,23,.12)'},
+  {from:5,to:7,color:'rgba(186,117,23,.12)'},
+  {from:10,to:11,color:'rgba(52,131,250,.12)'},
+  {from:12,to:12,color:'rgba(83,74,183,.12)'},
+  {from:16,to:17,color:'rgba(212,83,126,.12)'}
+];
+
+const bandPlugin={id:'bands',beforeDraw(chart){
+  const{ctx,chartArea:{left,right,top,bottom},scales:{x}}=chart;
+  if(!x)return;
+  const step=x.getPixelForValue(1)-x.getPixelForValue(0);
+  ctx.save();
+  BANDS.forEach(b=>{
+    const x1=x.getPixelForValue(b.from)-step*0.5;
+    const x2=x.getPixelForValue(b.to)+step*0.5;
+    ctx.fillStyle=b.color;
+    ctx.fillRect(Math.max(x1,left),top,Math.min(x2,right)-Math.max(x1,left),bottom-top);
+  });
+  ctx.restore();
+}};
+Chart.register(bandPlugin);
+
+const TT={backgroundColor:'rgba(25,25,25,0.9)',titleColor:'#fff',bodyColor:'#ccc',padding:9,cornerRadius:6,titleFont:{size:10,weight:'500'},bodyFont:{size:10},mode:'index',intersect:false};
+
+function baseOpts(yMin,yMax,fmt){
+  return{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>{
+      const v=ctx.parsed.y;
+      return` ${ctx.dataset.label}: ${(v===null||v===undefined)?'n/d':fmt?fmt(v):v}`;
+    }}}},
+    scales:{
+      x:{ticks:{font:{size:8},color:'#aaa',maxRotation:45,autoSkip:false},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{min:yMin,max:yMax,ticks:{font:{size:8},color:'#aaa',callback:v=>fmt?fmt(v):v},grid:{color:'rgba(0,0,0,.04)'}}
+    }
+  };
+}
+
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'Adoption 3P GM',data:adoption,borderColor:'#3266ad',backgroundColor:'rgba(50,102,173,.07)',borderWidth:2,pointRadius:2,fill:true,tension:0.3},
+  {label:'Penetração FBM',data:penFBM,borderColor:'#e08a2a',borderWidth:1.5,borderDash:[5,3],pointRadius:1.5,tension:0.3}
+]},options:baseOpts(28,58,v=>v.toFixed(1)+'%')});
+
+new Chart(document.getElementById('c7'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'VIPs FBM',data:vipsFBM,borderColor:'#3266ad',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'VIPs Flex',data:vipsFlex,borderColor:'#e08a2a',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'VIPs XD',data:vipsXD,borderColor:'#27ae60',borderWidth:2,pointRadius:2,tension:0.3}
+]},options:baseOpts(15,50,v=>v.toFixed(1)+'%')});
+
+new Chart(document.getElementById('c2'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'CVR FBM',data:cvrFBM,borderColor:'#3266ad',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'CVR Flex',data:cvrFlex,borderColor:'#e08a2a',borderWidth:2,pointRadius:2,tension:0.3}
+]},options:baseOpts(4.5,7,v=>v.toFixed(2)+'%')});
+
+new Chart(document.getElementById('c5'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'FS FBM',data:fsFBM,borderColor:'#3266ad',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'FS Flex',data:fsFlex,borderColor:'#e08a2a',borderWidth:2,pointRadius:2,tension:0.3}
+]},options:baseOpts(78,100,v=>v.toFixed(1)+'%')});
+
+new Chart(document.getElementById('c4'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'Promise FBM',data:promFBM,borderColor:'#3266ad',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'Promise Flex',data:promFlex,borderColor:'#e08a2a',borderWidth:2,pointRadius:2,tension:0.3}
+]},options:baseOpts(0,3.5,v=>v.toFixed(1)+'d')});
+
+new Chart(document.getElementById('c3'),{type:'bar',data:{labels:WKS,datasets:[{
+  label:'Buffering FBM',data:buf,
+  backgroundColor:buf.map(v=>v===null?'transparent':v>10?'rgba(192,57,43,.85)':v>3?'rgba(230,126,34,.75)':'rgba(39,174,96,.65)'),
+  borderWidth:0
+}]},options:{
+  responsive:true,maintainAspectRatio:false,
+  interaction:{mode:'index',intersect:false},
+  plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>{
+    const v=ctx.parsed.y;
+    return` Buffering: ${v===null?'n/d':v.toFixed(1)+'%'}`;
+  }}}},
+  scales:{
+    x:{ticks:{font:{size:8},color:'#aaa',maxRotation:45,autoSkip:false},grid:{color:'rgba(0,0,0,.04)'}},
+    y:{min:0,max:35,ticks:{font:{size:8},color:'#aaa',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}}
+  }
+}});
+
+new Chart(document.getElementById('c6'),{type:'line',data:{labels:WKS,datasets:[
+  {label:'FBM',data:gmvFBM,borderColor:'#3266ad',backgroundColor:'rgba(50,102,173,.06)',borderWidth:2,pointRadius:2,fill:true,tension:0.3},
+  {label:'Flex',data:gmvFlex,borderColor:'#e08a2a',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'XD',data:gmvXD,borderColor:'#27ae60',borderWidth:2,pointRadius:2,tension:0.3},
+  {label:'DS',data:gmvDS,borderColor:'#888',borderWidth:1.5,pointRadius:2,borderDash:[4,3],tension:0.3}
+]},options:{
+  ...baseOpts(0,32,v=>v.toFixed(1)),
+  plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)} MM`}}}
+}});
+
+function gapTable(id,d1,d2,fmt,posIsBad){
+  const peaks=[3,8,11,12,16,17];
+  const t=document.getElementById(id);
+  let h='<thead><tr><th></th>';
+  peaks.forEach(i=>h+=`<th>${WKS[i]}</th>`);
+  h+='</tr></thead><tbody>';
+  h+=`<tr><td>FBM</td>`;peaks.forEach(i=>h+=`<td>${fmt(d1[i])}</td>`);h+=`</tr>`;
+  h+=`<tr><td>Flex</td>`;peaks.forEach(i=>h+=`<td>${fmt(d2[i])}</td>`);h+=`</tr>`;
+  h+=`<tr><td style="font-weight:600">Gap</td>`;
+  peaks.forEach(i=>{
+    const gap=+(d1[i]-d2[i]).toFixed(3);
+    const isBad=posIsBad?(gap>0):(gap<0);
+    h+=`<td class="${isBad?'bad':'good'}">${gap>=0?'+':''}${fmt(gap)}</td>`;
+  });
+  h+=`</tr></tbody>`;
+  t.innerHTML=h;
+}
+
+gapTable('g2',cvrFBM, cvrFlex, v=>v.toFixed(2)+'%',false);
+gapTable('g4',promFBM,promFlex,v=>v.toFixed(1)+'d', true);
+gapTable('g5',fsFBM,  fsFlex,  v=>v.toFixed(1)+'%', false);
+</script>
+</body>
+</html>
